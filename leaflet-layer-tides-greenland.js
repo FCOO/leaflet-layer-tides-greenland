@@ -4,7 +4,7 @@
     L.GeoJSON.Tides = L.GeoJSON.extend({
         options: {
             language: 'en',
-            url: "tidal_stations_greenland.json",
+            url: "../json/tidal_stations_greenland.json",
             onEachFeature: function (feature, layer) {
                 var popstr;
                 var tidal_url_base = location.protocol + "//api.fcoo.dk/tides?station={s}&start={t1}&end={t2}&nx=500&ny=350&lang={l}&tz={dt}";
