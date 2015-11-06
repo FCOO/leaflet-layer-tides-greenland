@@ -54,12 +54,16 @@
             var that = this;
             L.setOptions(this, options);
             this._layers = {};
+            // jqxhr is a jQuery promise to get the requested JSON data
+            this.jqxhr = $.getJSON(this.options.url);
+            this.jqxhr.done(function (data) {
+                that.addData(data);
+            });
         },
 
         onAdd: function (map) {
             var that = this;
-            $.getJSON(this.options.url, function (data) {
-                that.addData(data);
+            this.jqxhr.done(function (data) {
                 L.GeoJSON.prototype.onAdd.call(that, map);
             });
         },
@@ -68,4 +72,3 @@
   return L.GeoJSON.Tides;
 
 }());
-
