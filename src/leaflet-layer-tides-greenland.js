@@ -10,7 +10,6 @@
 ;(function ($, L, window, document, undefined) {
 	"use strict";
 	var protocol = window.location.protocol == 'https:' ? 'https:' : 'http:';
-	console.log(protocol);
   L.GeoJSON.Tides = L.GeoJSON.extend({
   options: {
     language: 'en',
