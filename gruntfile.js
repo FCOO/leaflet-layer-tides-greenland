@@ -1,7 +1,7 @@
 /***********************************************
-gruntfile.js for {%= name %}
+gruntfile.js for leaflet-layer-tides-greenland
 
-https://github.com/FCOO/{%= name %}
+https://github.com/FCOO/leaflet-layer-tides-greenland
 
 ***********************************************/
 
