@@ -16,7 +16,7 @@
             url: "../json/tidal_stations_greenland.json",
             onEachFeature: function (feature, layer) {
                 var popstr;
-                var tidal_url_base = protocol + "//api.fcoo.dk/tides?station={s}&start={t1}&end={t2}&nx=500&ny=350&lang={l}&tz={dt}";
+                var tidal_url_base = protocol + "//app.fcoo.dk/tides/v1?station={s}&start={t1}&end={t2}&nx=500&ny=350&lang={l}&tz={dt}";
                 var t1 = new Date();
                 var dt = t1.getTimezoneOffset();
                 t1.setUTCHours(0);
