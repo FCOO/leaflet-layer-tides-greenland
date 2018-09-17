@@ -1,21 +1,22 @@
 {
   "name": "leaflet-layer-tides-greenland",
-  "version": "0.1.7",
+  "version": "1.0.0",
   "homepage": "https://github.com/FCOO/leaflet-layer-tides-greenland",
   "authors": [
     "Jesper Larsen jla@fcoo.dk"
   ],
   "description": "",
-  "main": [
-    "dist/leaflet-layer-tides-greenland.js"
-  ],
+  "main": "dist/leaflet-layer-tides-greenland.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/FCOO/leaflet-layer-tides-greenland.git"
   },
   "dependencies": {
     "leaflet": "latest",
-    "jquery": "latest"
+    "jquery": "latest",
+    "promise-get": "fcoo/promise-get#^1.0.1",
+    "leaflet-bootstrap": "fcoo/leaflet-bootstrap#^1.6.1",
+    "leaflet-latlng-format": "fcoo/leaflet-latlng-format#^1.1.0"
   },
   "devDependencies": {},
   "license": "MIT",

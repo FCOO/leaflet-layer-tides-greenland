@@ -1,5 +1,5 @@
 /****************************************************************************
-    leaflet-layer-tides-greenland.js, 
+    leaflet-layer-tides-greenland.js,
 
     (c) 2015, FCOO
 
@@ -9,73 +9,82 @@
 ****************************************************************************/
 (function ($, L, window/*, document, undefined*/) {
     "use strict";
-    var protocol = window.location.protocol == 'https:' ? 'https:' : 'http:';
+
+    var imgWidth = 600,
+        imgHeight = 400;
+
+    function getTextObjFromFeature( feature ){
+        var properties = feature.properties;
+        return {da: properties.nameDK || properties.name, en: properties.nameENG || properties.name};
+    }
+
+    function layerTidesOnPopupopen( popupEvent ){
+        var popup = popupEvent.popup,
+            layer = popup._source,
+            lang = window.i18next.language.toUpperCase() == 'DA' ? 'da' : 'en',
+            startDate = moment().utc().startOf('day'),
+            endDate = moment( startDate ).add( 3, 'days' ),
+            link =
+                (window.location.protocol == 'https:' ? 'https:' : 'http:') +
+                '//app.fcoo.dk/tides/v1?' +
+                    'station=' + layer.feature.properties.id + '&' +
+                    'lang=' + lang + '&' +
+                    'start=' + startDate.toISOString() + '&' +
+                    'end=' + endDate.toISOString() + '&' +
+                    'nx=' + imgWidth + '&' +
+                    'ny=' + imgHeight + '&' +
+                    'tz=' + -1*moment().utcOffset(),
+            $img = $('<img/>')
+                .attr('src', link)
+                .css({width: imgWidth, height: imgHeight });
+
+        popup.changeContent( $img );
+    }
+
     L.GeoJSON.Tides = L.GeoJSON.extend({
         options: {
-            language: 'en',
             url: "../json/tidal_stations_greenland.json",
             onEachFeature: function (feature, layer) {
-                var popstr;
-                var tidal_url_base = protocol + "//api.fcoo.dk/tides?station={s}&start={t1}&end={t2}&nx=500&ny=350&lang={l}&tz={dt}";
-                var t1 = new Date();
-                var dt = t1.getTimezoneOffset();
-                t1.setUTCHours(0);
-                t1.setUTCMinutes(0);
-                t1.setUTCSeconds(0);
-                t1.setUTCMilliseconds(0);
-                var t2 = new Date();
-                t2.setUTCDate(t2.getDate() + 3);
-                t2.setUTCHours(0);
-                t2.setUTCMinutes(0);
-                t2.setUTCSeconds(0);
-                t2.setUTCMilliseconds(0);
-                t1 = t1.toISOString();
-                t2 = t2.toISOString();
-                var tidal_url = tidal_url_base.replace('{s}', feature.properties.id);
-                tidal_url = tidal_url.replace('{t1}', t1);
-                tidal_url = tidal_url.replace('{t2}', t2);
-                tidal_url = tidal_url.replace('{l}', this.language);
-                var popups = {};
-                popups.en = '<h2>Tidal predictions for ' + feature.properties.name + '</h2><img src="' + tidal_url + '" height="350" width="500" /><p>Tidal predictions from <a href="http://dmi.dk">DMI</a>. Tidal tables can be found <a href="http://www.dmi.dk/en/groenland/hav/tidevandstabeller-groenland/">here</a>.</p>';
-                popups.da = '<h2>Tidevandsprognose for ' + feature.properties.name + '</h2><img src="' + tidal_url + '" height="350" width="500" /><p>Tidevandsprognoser fra <a href="http://dmi.dk">DMI</a>. Tidevandstabeller kan findes <a href="http://www.dmi.dk/groenland/hav/tidevandstabeller-groenland/">her</a>.</p>';
-                if (typeof popups[this.language] != 'undefined') {
-                    popstr = popups[this.language];
-                } else {
-                    popstr = popups.en;
-                }
-                feature.properties.popup = popstr;
-                popstr = popstr.replace('{dt}', dt);
-                layer.bindPopup(popstr, {maxWidth: 700, maxHeight: 600});
-            },
-            pointToLayer: function (feature, latlng) {
-                return L.circleMarker(latlng, {
-                    radius: 5,
-                    fillColor: "#ff7800",
-                    color: "#000",
-                    weight: 1,
-                    opacity: 1,
-                    fillOpacity: 0.8
+                layer.bindPopup({
+                    width  : 15 + imgWidth + 15,
+                    fixable: true,
+                    scroll : 'horizontal',
+                    header : {icon: 'fa-chart-line', text: [{da: 'Tidevand -', en: 'Tide -'}, getTextObjFromFeature(feature)]},
+
+                    //Add 'dummy' content to get popup dimentions correct on first open
+                    content: $('<div/>').css({width: imgWidth, height: imgHeight}),
+                    footer: [
+                        {icon: 'far fa-copyright', text: {da: 'Tidevandstabeller fra ', en: 'Tide tables from '}},
+                        {text: 'DMI', link: 'https://dmi.dk'}
+                    ]
                 });
+
+                layer.on('popupopen', layerTidesOnPopupopen);
+            },
+
+            pointToLayer: function (feature, latlng) {
+                return  L.circleMarker(latlng, {
+                            radius     : 7,
+                            fillColor  : "#ff7800",
+                            color      : "#000",
+                            weight     : 1,
+                            opacity    : 1,
+                            fillOpacity: 0.8,
+                        })
+                        .bindTooltip({text: getTextObjFromFeature( feature )});
             },
         },
 
-        initialize: function (options) {
-            var that = this;
-            L.setOptions(this, options);
-            this._layers = {};
-            // jqxhr is a jQuery promise to get the requested JSON data
-            this.jqxhr = $.getJSON(this.options.url);
-            this.jqxhr.done(function (data) {
-                that.addData(data);
-            });
-        },
+        initialize: function(initialize){
+            return function (options) {
+                initialize.call(this, null, options);
 
-        onAdd: function (map) {
-            var that = this;
-            this.jqxhr.done(function (/*data*/) {
-                L.GeoJSON.prototype.onAdd.call(that, map);
-            });
-        },
+                //Read the meta-data
+                var _this = this;
+                window.Promise.getJSON( this.options.url, {}, function( data ){ _this.addData( data );} );
+            };
+        } (L.GeoJSON.prototype.initialize)
+
     });
 
     return L.GeoJSON.Tides;
