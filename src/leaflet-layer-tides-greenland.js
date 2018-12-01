@@ -11,7 +11,12 @@
     "use strict";
 
     var imgWidth = 600,
-        imgHeight = 400;
+        imgHeight = 400,
+        bsMarkerOptions = {
+            colorName  : 'orange',
+            transparent: true,
+            hover      : true
+        };
 
     function getTextObjFromFeature( feature ){
         var properties = feature.properties;
@@ -41,6 +46,13 @@
         popup.changeContent( $img );
     }
 
+
+
+
+
+
+
+
     L.GeoJSON.Tides = L.GeoJSON.extend({
         options: {
             url: "../json/tidal_stations_greenland.json",
@@ -49,8 +61,10 @@
                     width  : 15 + imgWidth + 15,
                     fixable: true,
                     scroll : 'horizontal',
-                    header : {icon: 'fa-chart-line', text: [{da: 'Tidevand -', en: 'Tide -'}, getTextObjFromFeature(feature)]},
-
+                    header : {
+                        icon: L.bsMarkerAsIcon(bsMarkerOptions.colorName),
+                        text: [{da: 'Tidevand -', en: 'Tide -'}, getTextObjFromFeature(feature)]
+                    },
                     //Add 'dummy' content to get popup dimentions correct on first open
                     content: $('<div/>').css({width: imgWidth, height: imgHeight}),
                     footer: [
@@ -58,20 +72,11 @@
                         {text: 'DMI', link: 'https://dmi.dk'}
                     ]
                 });
-
                 layer.on('popupopen', layerTidesOnPopupopen);
             },
 
             pointToLayer: function (feature, latlng) {
-                return  L.circleMarker(latlng, {
-                            radius     : 7,
-                            fillColor  : "#ff7800",
-                            color      : "#000",
-                            weight     : 1,
-                            opacity    : 1,
-                            fillOpacity: 0.8,
-                        })
-                        .bindTooltip({text: getTextObjFromFeature( feature )});
+                return L.bsMarker( latlng, bsMarkerOptions).bindTooltip({text: getTextObjFromFeature( feature )});
             },
         },
 
@@ -84,12 +89,8 @@
                 window.Promise.getJSON( this.options.url, {}, function( data ){ _this.addData( data );} );
             };
         } (L.GeoJSON.prototype.initialize)
-
     });
 
     return L.GeoJSON.Tides;
 
 }(jQuery, L, this, document));
-
-
-
