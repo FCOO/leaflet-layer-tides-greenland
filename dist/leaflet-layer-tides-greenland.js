@@ -13,7 +13,9 @@
     var imgWidth = 600,
         imgHeight = 400,
         bsMarkerOptions = {
+            size       : 'small',
             colorName  : 'orange',
+            round      : true,
             transparent: true,
             hover      : true,
             tooltipHideWhenPopupOpen: true
@@ -48,12 +50,6 @@
     }
 
 
-
-
-
-
-
-
     L.GeoJSON.Tides = L.GeoJSON.extend({
         options: {
             url: "../json/tidal_stations_greenland.json",
@@ -77,7 +73,7 @@
             },
 
             pointToLayer: function (feature, latlng) {
-                return L.bsMarker( latlng, bsMarkerOptions).bindTooltip({text: getTextObjFromFeature( feature )});
+                return L.bsMarkerCircle( latlng, bsMarkerOptions).bindTooltip({text: getTextObjFromFeature( feature )});
             },
         },
 
